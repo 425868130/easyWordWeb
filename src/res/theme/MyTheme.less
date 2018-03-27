@@ -1,0 +1,25 @@
+/* 
+2018-3-11 21:16:44
+@author xujw
+自定义iview主题样式以及可能会被iview默认样式覆盖的组件样式写在此处
+*/
+
+/* 引入iview官方主题样式，通过覆盖该样式变量来进行主题定制 */
+@import '~iview/src/styles/index.less';
+/* 引入要单独修改样式的组件样式文件 */
+@import '../../views/header/header-search.less';
+
+@import '../../views/wordsMemory/wordsMemory.less';
+body{
+    background-color: #f8f8f9;
+}
+
+[v-cloak] {
+    display: none;
+  }
+  
+.ivu-input-group-prepend{
+    border: 1px 0px 1px 1px solid #dddee1;
+    background-color: white;
+    border-radius: 3px;
+  }

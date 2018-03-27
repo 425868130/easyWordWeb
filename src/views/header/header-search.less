@@ -1,0 +1,30 @@
+
+/* 头部区域搜索框样式，由于iview的Input组件在页面渲染时才应用样式，
+导致在单文件组件中定义的样式会被iview默认主题样式覆盖，此时要单独配
+置组件样式必须覆盖默认主题，通过自定义class+默认iview组件的class来
+定位文件中的组件。作用于views/headder/header.vue组件*/
+
+.header-search-input{
+    width: 200px;
+}
+
+.header-search-input .ivu-input{
+    background-color:inherit;
+    color: white;
+    border: solid 1px rgb(115, 180, 250);
+}
+.header-search-input .ivu-input:hover{
+    border: solid 1px white;
+}
+.header-search-input .ivu-input::-webkit-input-placeholder{
+    color: white;
+}
+.header-search-input .ivu-input:-ms-input-placeholder{
+    color: white;
+}
+.header-search-input .ivu-input::-moz-placeholder{
+    color: white;
+}
+.header-search-input .ivu-input-icon{
+    color: white;
+}
