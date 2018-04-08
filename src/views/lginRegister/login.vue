@@ -127,7 +127,7 @@ export default {
                 }).then(res=>{
                   if(res.data){
                     this.$Message.success('登录成功!');
-                    this.$store.commit('userLogin',res.data);
+                    this.$store.commit('setUserInfo',res.data);
                     this.$router.push('/wordsMemory');
                   }
                 }).catch(err=>{

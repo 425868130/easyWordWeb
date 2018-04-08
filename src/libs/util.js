@@ -17,6 +17,7 @@ util.getLocalTime = function(timestamp) {
     return new Date(timestamp).toLocaleString();
 }
 
+
 const ajaxUrl = env === 'development' ?
     'http://127.0.0.1:8088' :
     env === 'production' ?

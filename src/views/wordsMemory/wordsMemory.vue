@@ -102,7 +102,7 @@
         },
         methods:{
             getDailyTask(){
-                this.$http.get('/words/getDailyTask').then(res=>{
+                this.$http.get('/task/getDailyTask').then(res=>{
                     this.wordsList = res.data;
                 }).catch(err=>{
                     alert(err.response.data);
