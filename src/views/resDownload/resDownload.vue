@@ -46,18 +46,21 @@ hr {
             <Button type="warning" size="large" long @click="startDownload">开始下载</Button>
         </div>
     </Modal>
-    <div class="res-div" v-for="file in files">
-        <Spin size="large" v-if="!loadFinish"></Spin>
-        <h2 v-text="file.filename"></h2>
-        <div class="download-div">
-            <a @click="downloadFile(file.id)"><Icon type="ios-download-outline" style="font-size:40px;"></Icon><br>立即下载</a>
-        </div>
-        <p class="res-description" v-text="file.description"></p>
-    <span>上传时间:&nbsp;{{getLocalTime(file.gmtCreate)}}</span>&nbsp;&nbsp;&nbsp;<span>所需积分:&nbsp;{{file.pointsrequired}}</span>&nbsp;&nbsp;&nbsp;<span>下载次数:&nbsp;{{file.downCount}}</span>
-    <hr>
+    <div style="min-height:700px;padding-top:30px;">
+      <div class="res-div" v-for="file in files">
+          <Spin size="large" v-if="!loadFinish"></Spin>
+          <h2 v-text="file.filename"></h2>
+          <div class="download-div">
+              <a @click="downloadFile(file.id)"><Icon type="ios-download-outline" style="font-size:40px;"></Icon><br>立即下载</a>
+          </div>
+          <p class="res-description" v-text="file.description"></p>
+      <span>上传时间:&nbsp;{{getLocalTime(file.gmtCreate)}}</span>&nbsp;&nbsp;&nbsp;<span>所需积分:&nbsp;{{file.pointsrequired}}</span>&nbsp;&nbsp;&nbsp;<span>下载次数:&nbsp;{{file.downCount}}</span>
+      <hr>
+      </div>
     </div>
     <!-- 分页控件 -->
      <Page :total="totalRecord" size="small" show-total show-elevator class="page-part" @on-change="pageChange"></Page>
+     <back-top></back-top>
 </div>
 </template>
 <script>
@@ -111,9 +114,11 @@ export default {
           });
         })
         .catch(err => {
+          console.log(err);
+          
           this.$Modal.error({
             title: "下载失败!",
-            content: err.response.data
+            content: err.data.message
           });
         });
     },

@@ -16,6 +16,10 @@ import newsDetail from '../views/newsPage/newsDetail.vue';
 import userZone from '../views/userZone/userZone.vue';
 import wordsBook from '../views/wordsBook/wordsBook.vue';
 import authentication from '../views/authentication/authentication.vue';
+import dailyTask from '../views/task/dailyTask.vue';
+import reviewTask from '../views/task/reviewTask.vue';
+import practiceTask from '../views/task/practiceTask.vue';
+import listeningDetail from '../views/listeningPractice/listeningDetail.vue';
 /**
  * 子主页路由,负责index.vue页面的路由配置
  */
@@ -37,11 +41,16 @@ const childrenRouter=[
     },
     {
         path:'listeningPractice',
-        meta:{title:'听力训练',requiresAuth: true},
+        meta:{title:'听力在线',requiresAuth: true},
         component:listeningPractice
     },
     {
-        path:'newsPage',
+        path:'listeningDetail/:id',
+        meta:{title:'听力详情',requiresAuth:true},
+        component:listeningDetail
+    },
+    {
+        path:'newsPage/:page',
         meta:{title:'新闻资讯'},
         component:newsPage
     },
@@ -67,13 +76,28 @@ const childrenRouter=[
     },
     {
         path:'userZone/:userAccount',
-        meta:{title:'个人中心'},
+        meta:{title:'个人中心',requiresAuth: true},
         component:userZone
     },
     {
         path:'wordsBook/:userAccount',
         meta:{title:'单词本',requiresAuth: true},
         component:wordsBook
+    },
+    {
+        path:'task/dailyTask',
+        meta:{title:'今日任务',requiresAuth:true},
+        component:dailyTask
+    },
+    {
+        path:'task/reviewTask',
+        meta:{title:'复习任务',requiresAuth:true},
+        component:reviewTask
+    },
+    {
+        path:'task/practiceTask',
+        meta:{title:'巩固练习',requiresAuth:true},
+        component:practiceTask
     }
 ];
 

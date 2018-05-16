@@ -33,7 +33,7 @@ export default {
                 this.message = '认证成功！';
             }
         }).catch(err=>{
-            this.message=err.response.data;
+            this.message=err.data.message;
         });
     }
 }

@@ -131,7 +131,7 @@ export default {
                     this.$router.push('/wordsMemory');
                   }
                 }).catch(err=>{
-                  this.$Message.error(err.response.data);
+                  this.$Message.error(err.data.message);
                 })
               } else {
                   this.$Message.error('请检查输入的账号信息是否正确!');

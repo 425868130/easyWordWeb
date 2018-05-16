@@ -6,7 +6,7 @@
 }
 .user-area {
   background-color: white;
-  background-image: url('../../res/img/userInfo/userZoneBack.jpg');
+  background-image: url("../../res/img/userInfo/userZoneBack.jpg");
   width: inherit;
   background-size: 100% 250px;
   background-repeat: no-repeat;
@@ -156,6 +156,11 @@
   color: #80848f;
   font-size: 12px;
 }
+/* 图表样式 */
+.chart {
+  width: 100%;
+  height: 450px;
+}
 </style>
 <template>
   <div class="root">
@@ -194,19 +199,19 @@
         <!-- 任务管理卡片 -->
         <Card shadow>
           <p slot="title">任务管理</p>
-          <Circle :size="140" :trail-width="4" :stroke-width="5" :percent="75" stroke-linecap="square" stroke-color="#ff5500">
+          <Circle :size="140" :trail-width="4" :stroke-width="5" :percent="todayProgress" stroke-linecap="square" stroke-color="#ff5500">
             <div class="demo-Circle-custom">
               <h3>今日任务进度</h3><br>
-              <i>75%</i><br><br>
-              <router-link to="#">现在继续</router-link>
+              <i>{{todayProgress}}%</i><br><br>
+              <router-link to="/task/dailyTask">现在继续</router-link>
             </div>
           </Circle>
           <span style="margin-left:20px">
-            <Circle :size="140" :trail-width="4" :stroke-width="5" :percent="75" stroke-linecap="square">
+            <Circle :size="140" :trail-width="4" :stroke-width="5" :percent="reviewProgress" stroke-linecap="square">
               <div class="demo-Circle-custom">
                 <h3>复习任务进度</h3><br>
-                <i>75%</i><br><br>
-                <router-link to="#">现在继续</router-link>
+                <i>{{reviewProgress}}%</i><br><br>
+                <router-link to="/task/reviewTask">现在继续</router-link>
               </div>
             </Circle>
           </span>
@@ -240,9 +245,8 @@
       <div class="record-card left-card">
         <Card shadow>
           <p slot="title">背诵记录</p>
-          <p>Content of card</p>
-          <p>Content of card</p>
-          <p>Content of card</p>
+          <!-- 背诵记录图表 -->
+          <div id="chart" ref="chart" class="chart"></div>
         </Card>
       </div>
       <!--系统通知消息卡片 -->
@@ -296,11 +300,13 @@
         </select>
       </div>
     </Modal>
+    <back-top></back-top>
   </div>
 </template>
 <script>
+import echarts from "echarts";
 export default {
-  name: 'userZone',
+  name: "userZone",
   data() {
     return {
       editModal: false,
@@ -308,7 +314,7 @@ export default {
       headImgPreViewUrl: null,
       uploading: false,
       headImgFile: null,
-      uploadUrl: 'http://127.0.0.1:8088/user/updateUserImg',
+      uploadUrl: "http://127.0.0.1:8088/user/updateUserImg",
       userObj: null,
       notifiPage: {
         page: 1,
@@ -320,142 +326,206 @@ export default {
       recentGlossary: {
         loadfinish: false,
         glossaryList: []
-      }
-    }
+      },
+      polar: {}
+    };
   },
   computed: {
     user() {
       /* 拷贝一个user对象用于进行表单的双向绑定 */
-      this.userObj = JSON.parse(JSON.stringify(this.$store.getters.getUser))
-      return this.userObj
+      this.userObj = JSON.parse(JSON.stringify(this.$store.getters.getUser));
+      return this.userObj;
     },
     headImgUrl() {
       /* 计算模态框中预览用户头像的url,如果用户已选择本地文件则预览本地图片,否则预览原本的用户头像 */
       if (this.headImgPreViewUrl == null) {
-        return this.user.headPortrait
+        return this.user.headPortrait;
       } else {
-        return this.headImgPreViewUrl
+        return this.headImgPreViewUrl;
+      }
+    },
+    todayProgress() {
+      /* 如果state中没有今日任务数据则加载任务数据 */
+      if (this.$store.getters.getDailyTask == null) {
+        this.$store.dispatch("getDailyTask", false);
+        return 0;
+      } else {
+        let task = this.$store.getters.getDailyTask;
+        return task.todayProgress == 0
+          ? 0
+          : task.todayProgress * 100 / task.wordNum;
+      }
+    },
+    reviewProgress() {
+      /* 如果state中没有今日任务数据则加载任务数据 */
+      if (this.$store.getters.reviewTask == null) {
+        this.$store.dispatch("sysReviewTask");
+        return 0;
+      } else {
+        let task = this.$store.getters.reviewTask;
+        return task.reviewProgress == 0
+          ? 0
+          : task.reviewProgress * 100 / task.wordNum;
       }
     }
   },
   methods: {
     getLocalTime(timestamp) {
-      return this.$util.getLocalTime(timestamp)
+      return this.$util.getLocalTime(timestamp);
     },
     changeSignature() {
       /* 更新用户签名 */
       this.$http
-        .put('/user/userInfoUpdate', this.userObj)
+        .put("/user/userInfoUpdate", this.userObj)
         .then(res => {
           if (res.data) {
-            this.$store.dispatch('sysUserInfo')
-            this.$Message.success('个性签名修改成功!')
+            this.$store.dispatch("sysUserInfo");
+            this.$Message.success("个性签名修改成功!");
           }
         })
         .catch(err => {
           this.$Modal.warning({
-            title: '操作失败',
-            content: err.response.data
-          })
-        })
+            title: "操作失败",
+            content: err.data.message
+          });
+        });
     },
     /* 切换成编辑模式 */
     editInfo() {
-      this.editModal = true
+      this.editModal = true;
     },
     changeHeadPortrait() {
       if (this.headImgFile == null) {
-        this.$Message.error('请先选择本地头像文件!')
-        return
+        this.$Message.error("请先选择本地头像文件!");
+        return;
       }
-      this.uploading = true
+      this.uploading = true;
       /* 上传用户头像 */
-      this.$refs.upload.post(this.headImgFile)
+      this.$refs.upload.post(this.headImgFile);
     },
     modalCancel() {
       /* 模态框取消时清除本地预览url */
-      this.headImgPreViewUrl = null
-      this.headImgFile = null
-      this.uploading = false
+      this.headImgPreViewUrl = null;
+      this.headImgFile = null;
+      this.uploading = false;
     },
     handleBeforeUpload(file) {
-      this.headImgFile = file
+      /* 文件上传前进行本地预览 */
+      this.headImgFile = file;
       /* 将本地文件读取为url地址 */
-      let reader = new FileReader()
+      let reader = new FileReader();
       /* 此处必须用箭头函数否则无法对 headImgPreViewUrl进行修改 */
       reader.onload = e => {
-        this.headImgPreViewUrl = reader.result
-      }
-      reader.readAsDataURL(file)
-      return false
+        this.headImgPreViewUrl = reader.result;
+      };
+      reader.readAsDataURL(file);
+      return false;
     },
     handleMaxSize() {
-      this.$Message.error('头像文件过大,请选择不大于2M的图片文件!')
-      this.uploading = false
+      this.$Message.error("头像文件过大,请选择不大于2M的图片文件!");
+      this.uploading = false;
     },
     handleSuccess(res) {
-      this.uploading = false
+      this.uploading = false;
       /* 同步用户信息必须在文件上传之后做, 如果放在changeHeadPortrait方法中会导致同步时拿到的是更新前的用户数据*/
-      this.$store.dispatch('sysUserInfo').then(() => {
-        this.headPortraitModal = false
-      })
+      this.$store.dispatch("sysUserInfo").then(() => {
+        this.headPortraitModal = false;
+      });
     },
     userInfoChange() {
       /* 更新用户信息 */
       this.$http
-        .put('/user/userInfoUpdate', this.userObj)
+        .put("/user/userInfoUpdate", this.userObj)
         .then(res => {
           if (res.data) {
-            this.$store.dispatch('sysUserInfo')
-            this.$Message.success('用户信息修改成功!')
+            this.$store.dispatch("sysUserInfo");
+            this.$Message.success("用户信息修改成功!");
           }
         })
         .catch(err => {
           this.$Modal.warning({
-            title: '操作失败',
-            content: err.response.data
-          })
-        })
+            title: "操作失败",
+            content: err.data.message
+          });
+        });
     },
     cancelEdit() {
       /* 取消用户信息修改时恢复用户信息 */
-      this.userObj = JSON.parse(JSON.stringify(this.$store.getters.getUser))
+      this.userObj = JSON.parse(JSON.stringify(this.$store.getters.getUser));
     },
     noticePageChange(pageIndex) {
-      this.notifiPage.loadfinish = false
+      this.notifiPage.loadfinish = false;
       /* 通知消息页码切换 */
       this.$http
-        .get('/notification/getUserNotification', {
+        .get("/notification/getUserNotification", {
           params: {
             page: pageIndex,
             pageSize: this.notifiPage.pageSize
           }
         })
         .then(res => {
-          this.notifiPage.notifications = res.data.dataList
-          this.notifiPage.total = res.data.totalRecord
-          this.notifiPage.page = pageIndex
-          this.notifiPage.loadfinish = true
+          this.notifiPage.notifications = res.data.dataList;
+          this.notifiPage.total = res.data.totalRecord;
+          this.notifiPage.page = pageIndex;
+          this.notifiPage.loadfinish = true;
         })
         .catch(err => {
-          this.notifiPage.loadfinish = true
+          this.notifiPage.loadfinish = true;
+        });
+    },
+    chartInit() {
+      this.$http
+        .get("/words/getWeekRecord")
+        .then(res => {
+          // 基于准备好的dom，初始化echarts实例
+          let myChart = echarts.init(document.getElementById("chart"));
+          // 绘制图表
+          myChart.setOption({
+            title: {
+              text: "近期统计"
+            },
+            legend: {
+              data: ["数量"]
+            },
+            tooltip: {},
+            dataset: {
+              dimensions: ["num", "time"],
+              // 提供一份数据。
+              source: res.data
+            },
+            xAxis: { type: "category", name: "日期" },
+            // 声明一个 Y 轴，数值轴。
+            yAxis: { name: "背诵单词数" },
+            series: [
+              {
+                type: "bar",
+                encode: {
+                  // 将 "amount" 列映射到 X 轴。
+                  x: "tim",
+                  // 将 "product" 列映射到 Y 轴。
+                  y: "num"
+                }
+              }
+            ]
+          });
         })
+        .catch(err => {});
     }
   }, //methods
   mounted() {
     /* 挂载前加载第一页的通知消息 */
-    this.noticePageChange(1)
+    this.noticePageChange(1);
     this.$http
-      .get('/glossary/recentGlossary')
+      .get("/glossary/recentGlossary")
       .then(res => {
-        if (res.data.status_code == 0) {
-          this.recentGlossary.loadfinish = true
-          this.recentGlossary.glossaryList = res.data.data
-        }
+        this.recentGlossary.loadfinish = true;
+        this.recentGlossary.glossaryList = res.data;
       })
       .catch(err => {
-        this.recentGlossary.loadfinish = true
-      })
+        this.recentGlossary.loadfinish = true;
+        this.recentGlossary.glossaryList = [];
+      });
+    this.chartInit();
   }
-}
+};
 </script>

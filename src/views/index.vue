@@ -10,13 +10,16 @@
 [v-cloak] {
   display: none;
 }
+.main-view{
+  min-height: 600px;
+}
 </style>
 <template>
     <div class="index" v-cloak>
       <!-- 网页头部导航栏 -->
       <MainHeader @onSearch="onSearch" :is-login="isUserLogin" :user="userInfo" @onLogout="onLogout"></MainHeader>
       <!-- 内容出口路由 -->
-      <router-view></router-view>
+      <router-view class="main-view"></router-view>
       <MyFooter></MyFooter>
     </div>
 </template>
