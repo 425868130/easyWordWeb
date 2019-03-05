@@ -50,7 +50,7 @@ const childrenRouter=[
         component:listeningDetail
     },
     {
-        path:'newsPage/:page',
+        path:'/newsPage/:page',
         meta:{title:'新闻资讯'},
         component:newsPage
     },

@@ -281,6 +281,7 @@ export default {
           duration: 1
         });
         this.timeFinish = true;
+        /* 清除定时器 */
         clearTimeout(this.timer);
         this.rememberWord();
       } else {

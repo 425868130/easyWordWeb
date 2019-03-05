@@ -96,6 +96,7 @@ const store = new Vuex.Store({
                 '/task/getDailyTask',
                 {params: {refresh: isRefresh ? true : false}})
             .then(res => {
+              /* 提交vuex的mutations触发设置今日任务数据 */
               commit('setDailyTask', res.data);
               /* 回调 */
               resolve();

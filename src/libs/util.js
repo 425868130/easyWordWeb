@@ -24,8 +24,8 @@ util.getLocalTime = function(timestamp) {
 
 
 const ajaxUrl = env === 'development' ?
-    'http://127.0.0.1:8088' :
-    env === 'production' ? 'https://www.url.com' : 'https://debug.url.com';
+    'http://localhost:8088' :
+    env === 'production' ? 'http://123.207.43.56:8088' : 'http://123.207.43.56:8088';
 /* 配置Axios */
 util.ajax = axios.create({
   baseURL: ajaxUrl,

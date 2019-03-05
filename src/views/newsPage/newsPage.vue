@@ -100,10 +100,10 @@ export default {
   watch: {
     $route(to, from) {
       let newPage = to.params.page;
-      /* 如果前后两次路由参数（要查询的单词）相同则直接复用原组件,否则执行查询操作 */
       if (from.params.page == newPage) {
         return;
       }
+       /* 如果前后两次路由参数相同则直接复用原组件,否则执行新闻数据加载 */
       this.args.page = newPage ? parseInt(newPage) : 1;
       this.loadNews();
     }
